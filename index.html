@@ -302,14 +302,28 @@ ${sweets.map(s=>`<span class="block sweet" onclick="pick(this,'sweet')">${s}</sp
 });
 
 function toggle(index){
-document.querySelectorAll(".panel").forEach(p=>{
-if(p!==index.nextElementSibling){
-p.style.display="none";
-p.querySelectorAll(".block").forEach(b=>b.classList.remove("active"));
-}
-});
-index.nextElementSibling.style.display=
-index.nextElementSibling.style.display==="block"?"none":"block";
+
+  document.querySelectorAll(".panel").forEach(p=>{
+
+    // ปิด panel อื่น
+    if(p !== index.nextElementSibling){
+      p.style.display="none";
+      p.querySelectorAll(".block")
+        .forEach(b=>b.classList.remove("active"));
+    }
+
+  });
+
+  const panel = index.nextElementSibling;
+
+  // ⭐ ถ้ากำลังเปิดใหม่ ให้ล้างค่าที่เลือกไว้
+  if(panel.style.display !== "block"){
+    panel.querySelectorAll(".block")
+         .forEach(b=>b.classList.remove("active"));
+  }
+
+  panel.style.display =
+    panel.style.display==="block" ? "none" : "block";
 }
 
 function pick(el,type){
