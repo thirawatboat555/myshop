@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ร้านริมทุ่ง</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+margin:0;
+font-family:sans-serif;
+background:#f2f2f2;
+padding-top:55px;
+padding-bottom:20px;
+}
+
+/* HEADER */
+.header{
+position:fixed;
+top:0;left:0;right:0;
+background:linear-gradient(135deg,#43a047,#8bc34a);
+color:white;
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:6px 10px;
+font-size:14px;
+z-index:1000;
+}
+
+.header-left,
+.header-center,
+.header-right{
+display:flex;
+align-items:center;
+gap:6px;
+}
+
+.header-center{
+font-weight:bold;
+flex:1;
+justify-content:center;
+}
+
+.header button{
+border:none;
+border-radius:6px;
+padding:4px 8px;
+cursor:pointer;
+}
+
+.seller-input{
+padding:3px 6px;
+border-radius:6px;
+border:none;
+font-size:12px;
+width:90px;
+}
+
+
+/* CART */
+.cart-box{
+position:fixed;
+top:90px;
+right:8px;
+background:white;
+width:260px;
+max-height:75vh;
+overflow:auto;
+border-radius:14px;
+box-shadow:0 4px 10px rgba(0,0,0,.25);
+padding:8px;
+font-size:12px;
+z-index:1200;
+}
+
+.cart-title{
+font-weight:bold;
+text-align:center;
+margin-bottom:6px;
+}
+
+.cart-item{
+border-bottom:1px dashed #ccc;
+padding:6px 0;
+}
+
+.cart-name{font-weight:bold}
+
+.cart-detail{
+font-size:11px;
+color:#555;
+}
+
+.qty{
+display:flex;
+justify-content:flex-end;
+gap:4px;
+margin-top:4px;
+}
+
+.qty button{
+border:none;
+background:#4CAF50;
+color:white;
+border-radius:6px;
+padding:2px 6px;
+font-size:12px;
+cursor:pointer;
+}
+
+.qty button.minus{background:#e53935}
+
+.cart-summary{
+margin-top:6px;
+font-weight:bold;
+text-align:center;
+}
+
+.order-btn{
+width:100%;
+margin-top:6px;
+padding:8px;
+border:none;
+border-radius:10px;
+background:#ff9800;
+color:white;
+font-size:13px;
+cursor:pointer;
+}
+
+/* index */
+.card{
+background:white;
+margin:10px;
+border-radius:14px;
+overflow:hidden;
+box-shadow:0 3px 6px rgba(0,0,0,.15);
+}
+
+.index{
+display:flex;
+align-items:center;
+padding:10px;
+cursor:pointer;
+}
+
+.index img{
+width:60px;
+height:60px;
+border-radius:10px;
+object-fit:cover;
+}
+
+.index div{
+margin-left:10px;
+flex:1;
+font-size:14px;
+}
+
+.panel{
+display:none;
+padding:10px;
+border-top:1px solid #ddd;
+font-size:12px;
+}
+
+.block{
+border:1px solid #aaa;
+padding:5px 10px;
+border-radius:14px;
+margin:3px;
+display:inline-block;
+cursor:pointer;
+}
+
+.block.active{
+background:#4CAF50;
+color:white;
+border-color:#4CAF50;
+}
+
+.block.disabled{
+opacity:.4;
+pointer-events:none;
+}
+
+button.add{
+width:100%;
+padding:8px;
+border:none;
+border-radius:12px;
+background:#2196F3;
+color:white;
+margin-top:6px;
+font-size:13px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+
+  <!-- ฝั่งซ้าย -->
+  <div class="header-left">
+    <button onclick="goHome()">🏠 หน้าแรก</button>
+  </div>
+
+  <!-- ชื่อร้านตรงกลาง -->
+  <div class="header-center">
+    ร้านริมทุ่ง
+  </div>
+
+  <!-- ช้อยส์ของแม่ค้า -->
+  <div class="header-right">
+
+    <div style="font-size:12px; margin-bottom:4px;">
+      🔒 สำหรับร้านค้า
+    </div>
+
+    <input type="password"
+           id="sellerPass"
+           class="seller-input"
+           placeholder="ใส่รหัส">
+
+    <button onclick="sellerLogin()">ยืนยัน</button>
+
+  </div>
+
+</div>
+
+
+<div class="cart-box">
+<div class="cart-title">🧺 ตะกร้า</div>
+<div id="cartList"></div>
+<div id="cartSummary" class="cart-summary"></div>
+<button class="order-btn" onclick="goOrder()">🛒 สั่งซื้อ</button>
+</div>
+
+<div id="list"></div>
+
+<script>
+
+
+/*แก้ "ชื่อ",ราคา,"images/(ชื่อรูปต้องตรง)"*/
+const indexs=[
+["ชาเขียว",25,"images/chageen.jpg"],
+["ชาไทย",25,"images/chathai.jpg"],
+["โกโก้",25,"images/cocoa.jpg"],
+["นมสด",25,"images/nom.jpg"],
+["โอริโอ้นมสดปั่น",30,"images/oreo.jpg"],
+["ชาดำเย็น",25,"images/chadang.jpg"],
+["โอเลี้ยง",25,"images/ole.jpg"],
+["กาแฟเนส",25,"images/Ness coffee.jpg"],
+["กาแฟดำ",25,"images/dark coffee.jpg"],
+["เผือก",25,"images/Cold taro.jpg"],
+["แคนตาลูป",25,"images/Cantaloupe.jpg"],
+["โอวัลติน",25,"images/Ovaltine.jpg"],
+["แดงโซดา",25,"images/Red Soda.jpg"],
+["แดงโซดามะนาว",25,"images/Red Lemon Soda.jpg"],
+["เขียวโซดา",25,"images/Green Soda.jpg"],
+["เขียวโซดามะนาว",25,"images/Green Lime Soda.jpg"],
+["บลูฮาวาย",25,"images/Blue Hawaii.jpg"],
+["บลูฮาวายโซดา",25,"images/Blue Hawaii Soda.jpg"],
+["แอปเบิ้ลเขียว",25,"images/green apple.jpg"],
+["แอปเบิ้ลเขียวโซดา",25,"images/Green Apple Soda.jpg"],
+["มะพร้าว",25,"images/coconut.jpg"],
+["มะพร้าวนมสด",25,"images/fresh coconut milk.jpg"],
+["สตอเบอรี่",25,"images/strawberry.jpg"],
+["สตอเบอรี่โซดา",25,"images/Strawberry soda.jpg"]
+/*เวลาจบตัวสุดท้ายไม่ต้องใส่ , ปิดเหมือนตัวนี้ ["นมสด",25,"images/nom.jpg"]*/
+];
+
+const sweets=["0%","25%","50%","75%","100%","125%"];
+let cart={};
+
+const list=document.getElementById("list");
+
+indexs.forEach(m=>{
+const oreo=m[0]==="โอริโอ้นมสดปั่น";
+
+list.innerHTML+=`
+<div class="card">
+<div class="index" onclick="toggle(this)">
+<img src="${m[2]}" alt="${m[0]}">
+<div><b>${m[0]}</b><br>${m[1]} บาท</div>
+</div>
+
+<div class="panel">
+<b>ความหวาน</b><br>
+${sweets.map(s=>`<span class="block sweet" onclick="pick(this,'sweet')">${s}</span>`).join("")}
+<br><br><b>ชนิด</b><br>
+<span class="block type" onclick="pick(this,'type')">เย็น</span>
+<span class="block type ${oreo?'disabled':''}" onclick="pick(this,'type')">แยกน้ำ</span>
+<span class="block type ${oreo?'disabled':''}" data-extra="5" onclick="pick(this,'type')">ปั่น +5</span>
+
+<button class="add" onclick="addItem(this,'${m[0]}',${m[1]})">เพิ่ม</button>
+</div>
+</div>`;
+});
+
+function toggle(index){
+document.querySelectorAll(".panel").forEach(p=>{
+if(p!==index.nextElementSibling){
+p.style.display="none";
+p.querySelectorAll(".block").forEach(b=>b.classList.remove("active"));
+}
+});
+meindex.nextElementSibling.style.display=
+index.nextElementSibling.style.display==="block"?"none":"block";
+}
+
+function pick(el,type){
+if(el.classList.contains("disabled")) return;
+if(el.classList.contains("active")){
+el.classList.remove("active");
+return;
+}
+const p=el.closest(".panel");
+p.querySelectorAll("."+type).forEach(b=>b.classList.remove("active"));
+el.classList.add("active");
+}
+
+function addItem(btn,name,price){
+const p=btn.parentElement;
+const sweet=p.querySelector(".sweet.active");
+const type=p.querySelector(".type.active");
+if(!sweet||!type) return;
+
+const extra=type.dataset.extra?Number(type.dataset.extra):0;
+const totalPrice=price+extra;
+
+const key=name+"|"+sweet.textContent+"|"+type.textContent;
+cart[key] ??= {name,sweet:sweet.textContent,type:type.textContent,price:totalPrice,qty:0};
+cart[key].qty++;
+
+renderCart();
+p.style.display="none";
+p.querySelectorAll(".block").forEach(b=>b.classList.remove("active"));
+}
+
+function change(key,val){
+cart[key].qty+=val;
+if(cart[key].qty<=0) delete cart[key];
+renderCart();
+}
+
+function renderCart(){
+const box=document.getElementById("cartList");
+const sum=document.getElementById("cartSummary");
+box.innerHTML="";
+let tq=0,tp=0;
+
+Object.values(cart).forEach(i=>{
+tq+=i.qty;
+tp+=i.qty*i.price;
+
+box.innerHTML+=`
+<div class="cart-item">
+<div class="cart-name">${i.name}</div>
+<div class="cart-detail">หวาน ${i.sweet} • ${i.type}</div>
+<div class="cart-detail">${i.qty} x ${i.price} บาท</div>
+<div class="qty">
+<button class="minus" onclick="change('${i.name}|${i.sweet}|${i.type}',-1)">➖</button>
+<button onclick="change('${i.name}|${i.sweet}|${i.type}',1)">➕</button>
+</div>
+</div>`;
+});
+
+sum.innerHTML=tq?`รวม ${tq} แก้ว<br>รวม ${tp} บาท`:"";
+}
+
+function checkout(){
+if(Object.keys(cart).length===0){
+alert("ยังไม่มีรายการในตะกร้า");
+return;
+}
+let msg="สรุปคำสั่งซื้อ\n\n";
+let total=0;
+Object.values(cart).forEach(i=>{
+msg+=`${i.name}\n- หวาน ${i.sweet}\n- ${i.type}\n${i.qty} x ${i.price} บาท\n\n`;
+total+=i.qty*i.price;
+});
+msg+=`รวมทั้งหมด ${total} บาท`;
+alert(msg);
+}
+
+function sellerLogin() {
+    const pass = document.getElementById("sellerPass").value;
+
+    if(pass === "1234"){
+
+        // บอกระบบว่าเป็นแม่ค้า
+        localStorage.setItem("role","seller");
+
+        // เด้งไปหน้าแม่ค้า
+        window.location.href = "seller.html";
+
+    }else{
+        alert("รหัสไม่ถูกต้อง");
+    }
+}
+
+function goHome(){
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+
+function goOrder(){
+    localStorage.setItem("cart", JSON.stringify(cart));
+    window.location.href = "order.html";
+}
+
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>รายการสั่งซื้อ</title>
+
+<style>
+body{
+    font-family: Arial;
+    background:#f4f4f4;
+    margin:0;
+}
+
+/* HEADER */
+.header{
+    background:#2e7d32;
+    color:white;
+    padding:15px;
+    text-align:center;
+    font-size:20px;
+}
+
+/* BOX */
+.container{
+    max-width:500px;
+    margin:20px auto;
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 4px 10px rgba(0,0,0,.2);
+}
+
+.item{
+    border-bottom:1px dashed #ccc;
+    padding:8px 0;
+}
+
+.total{
+    font-weight:bold;
+    font-size:18px;
+    text-align:right;
+    margin-top:10px;
+}
+
+/* QR */
+.qr{
+    text-align:center;
+    margin-top:20px;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    background:#ff9800;
+    border:none;
+    border-radius:8px;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+    margin-top:15px;
+}
+button:hover{
+    background:#e68900;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+📋 รายการที่สั่งซื้อ
+</div>
+
+<div class="container">
+
+<div id="orderList"></div>
+
+<div class="total" id="totalPrice"></div>
+
+<div class="qr">
+    <p>📱 กรุณาสแกนเพื่อชำระเงิน</p>
+    <img src="images/qr.png" width="200">
+</div>
+
+<button onclick="paid()">✅ สแกนแล้ว</button>
+
+</div>
+
+<script>
+
+/* ✅ ดึงข้อมูลจาก index.html ก่อน */
+let cartData = JSON.parse(localStorage.getItem("cart")) || {};
+let order = Object.values(cartData);
+
+let html = "";
+let total = 0;
+
+/* ถ้าไม่มีรายการ */
+if(order.length === 0){
+
+    html = "<p style='text-align:center;color:red'>ไม่มีรายการสั่งซื้อ</p>";
+
+}else{
+
+    order.forEach(item => {
+
+        let price = item.price || 0;
+        let qty = item.qty || 0;
+        let sum = price * qty;
+
+        total += sum;
+
+        html += `
+        <div class="item">
+            <b>${item.name}</b><br>
+            ประเภท: ${item.type || "-"}<br>
+            ความหวาน: ${item.sweet || "-"}<br>
+            จำนวน: ${qty}
+            <span style="float:right">${sum} บาท</span>
+        </div>
+        `;
+    });
+}
+
+/* แสดงผล */
+document.getElementById("orderList").innerHTML = html;
+document.getElementById("totalPrice").innerHTML =
+    "รวมทั้งหมด : " + total + " บาท";
+
+/* กดสแกนแล้ว */
+function paid(){
+    localStorage.setItem("status","paid");
+    window.location.href="waiting.html";
+}
+
+function paid() {
+
+    // ล้างตะกร้า
+    localStorage.removeItem("cart");
+
+    // แจ้งเตือน
+    alert("ชำระเงินเรียบร้อย ✅");
+
+    // กลับหน้าเมนู
+    window.location.href = "index.html";
+}
+
+
+</script>
+
+
+</body>
+</html>
