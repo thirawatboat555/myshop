@@ -60,6 +60,19 @@ font-weight:bold;">
 </div>
 
 <div class="container">
+<div style="text-align:right;margin-bottom:10px;">
+<button onclick="resetOrders()" style="
+background:#d32f2f;
+color:white;
+border:none;
+padding:8px 14px;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;">
+🗑 รีเซ็ตออเดอร์
+</button>
+</div>
+
 <div id="orderList">ยังไม่มีออเดอร์</div>
 </div>
 
@@ -71,9 +84,16 @@ function loadOrders(){
 
     let html="";
 
-    orders.forEach(order=>{
+    // 🔥 เรียงใหม่ล่าสุดขึ้นบน
+    let reversed = [...orders].reverse();
+
+    reversed.forEach((order,index)=>{
+
+        // เลขออเดอร์ (นับจากล่างขึ้นบน)
+        let orderNumber = orders.length - index;
 
         html += `<div class="order">
+        📦 ออเดอร์ที่: <b>${orderNumber}</b><br>
         🕒 เวลา: ${order.time}<br>`;
 
         order.items.forEach(item=>{
@@ -86,7 +106,6 @@ function loadOrders(){
                 💰 ราคา: ${item.price || 0} บาท<br>
                 🔢 จำนวน: ${item.qty || 0}<br>
                 ✅ รวม: ${item.sum || 0} บาท
-
             </div>
             `;
         });
@@ -98,22 +117,31 @@ function loadOrders(){
         </div>`;
     });
 
-    if(html !== ""){
-        document.getElementById("orderList").innerHTML = html;
-    }
+    document.getElementById("orderList").innerHTML =
+        html || "ยังไม่มีออเดอร์";
 }
 
+// โหลดครั้งแรก
 loadOrders();
 
-/* รีเฟรชอัตโนมัติ */
+// รีเฟรชอัตโนมัติ
 setInterval(loadOrders,3000);
+
+
+// ✅ รีเซ็ตออเดอร์
+function resetOrders(){
+
+    if(confirm("ต้องการลบออเดอร์ทั้งหมดใช่ไหม ?")){
+        localStorage.removeItem("orders");
+        loadOrders();
+    }
+}
 
 function goindex(){
     window.location.href="index.html";
 }
 
 </script>
-
 
 </body>
 </html>
