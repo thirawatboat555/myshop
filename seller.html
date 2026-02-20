@@ -30,6 +30,7 @@ body{
     border-bottom:2px solid #ddd;
     padding:12px;
     margin-bottom:10px;
+     text-align:left;
 }
 
 .item{
@@ -45,6 +46,7 @@ body{
 
 <div class="header" style="display:flex; justify-content:space-between; align-items:center;">
 
+<div>
 <button onclick="goindex()" style="
 background:white;
 border:none;
@@ -54,12 +56,36 @@ cursor:pointer;
 font-weight:bold;">
 🏠 หน้าแรก
 </button>
+</div>
+
+<div style="display:flex; gap:10px; align-items:center;">
+
+<button onclick="resetTotalCups()" style="
+background:#ff9800;
+color:white;
+border:none;
+padding:6px 12px;
+border-radius:6px;
+cursor:pointer;
+font-weight:bold;">
+♻️ รีเซ็ตแก้ว
+</button>
 
 <div>👨‍🍳 หน้าควบคุมร้านค้า</div>
 
 </div>
 
+</div>
+
+
 <div class="container">
+
+<!-- ✅ จำนวนแก้วสะสม -->
+<div style="font-weight:bold;font-size:18px;margin-bottom:12px;">
+🥤 จำนวนแก้วทั้งหมดที่ขาย:
+<span id="totalCups">0</span> แก้ว
+</div>
+
 <div style="text-align:right;margin-bottom:10px;">
 <button onclick="resetOrders()" style="
 background:#d32f2f;
@@ -73,23 +99,25 @@ font-weight:bold;">
 </button>
 </div>
 
+<div style="text-align:right;margin-bottom:10px;">
+
+
 <div id="orderList">ยังไม่มีออเดอร์</div>
 </div>
 
 <script>
 
+// ================= โหลดออเดอร์ =================
 function loadOrders(){
 
     let orders = JSON.parse(localStorage.getItem("orders")) || [];
 
     let html="";
 
-    // 🔥 เรียงใหม่ล่าสุดขึ้นบน
     let reversed = [...orders].reverse();
 
     reversed.forEach((order,index)=>{
 
-        // เลขออเดอร์ (นับจากล่างขึ้นบน)
         let orderNumber = orders.length - index;
 
         html += `<div class="order">
@@ -119,6 +147,47 @@ function loadOrders(){
 
     document.getElementById("orderList").innerHTML =
         html || "ยังไม่มีออเดอร์";
+
+    updateTotalCups();
+}
+
+// ================= นับจำนวนแก้วสะสม =================
+function updateTotalCups(){
+
+    let orders = JSON.parse(localStorage.getItem("orders")) || [];
+    let total = Number(localStorage.getItem("totalCups")) || 0;
+
+    let counted = Number(localStorage.getItem("countedOrders")) || 0;
+
+    // นับเฉพาะออเดอร์ใหม่
+    if(orders.length > counted){
+
+        for(let i=counted; i<orders.length; i++){
+            orders[i].items.forEach(item=>{
+                total += Number(item.qty || 0);
+            });
+        }
+
+        localStorage.setItem("totalCups", total);
+        localStorage.setItem("countedOrders", orders.length);
+    }
+
+    document.getElementById("totalCups").innerText = total;
+}
+
+// ================= รีเซ็ตออเดอร์ =================
+function resetOrders(){
+
+    if(confirm("ต้องการลบออเดอร์ทั้งหมดใช่ไหม ?")){
+        localStorage.removeItem("orders");
+        localStorage.removeItem("countedOrders"); // รีเซ็ตตัวนับรอบ
+        loadOrders();
+    }
+}
+
+// ================= ปุ่มหน้าแรก =================
+function goindex(){
+    window.location.href="index.html";
 }
 
 // โหลดครั้งแรก
@@ -127,18 +196,16 @@ loadOrders();
 // รีเฟรชอัตโนมัติ
 setInterval(loadOrders,3000);
 
+// ================= รีเซ็ตจำนวนแก้วสะสม =================
+function resetTotalCups(){
 
-// ✅ รีเซ็ตออเดอร์
-function resetOrders(){
+    if(confirm("ต้องการรีเซ็ตจำนวนแก้วสะสมใช่ไหม ?")){
 
-    if(confirm("ต้องการลบออเดอร์ทั้งหมดใช่ไหม ?")){
-        localStorage.removeItem("orders");
-        loadOrders();
+        localStorage.removeItem("totalCups");
+        localStorage.removeItem("countedOrders");
+
+        document.getElementById("totalCups").innerText = 0;
     }
-}
-
-function goindex(){
-    window.location.href="index.html";
 }
 
 </script>
