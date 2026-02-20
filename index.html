@@ -7,6 +7,16 @@
 
 <style>
 *{box-sizing:border-box}
+.cart-box{
+display:none;
+}
+.cart-title{
+  display: none;
+}
+.order-btn{display: none;}
+.cartList{display: none;}
+.cartSummary{display: none;}
+/* .list{display: none;} */
 body{
 margin:0;
 font-family:sans-serif;
@@ -58,8 +68,18 @@ font-size:12px;
 width:90px;
 }
 
+/* ✅ ปุ่มตะกร้าใน Header */
+.cart-header{
+background:white;
+color:#2e7d32;
+padding:4px 12px;
+border-radius:20px;
+font-weight:bold;
+cursor:pointer;
+margin-left:6px;
+}
 
-/* CART */
+/* CART BOX (ของเดิม ไม่แก้) */
 .cart-box{
 position:fixed;
 top:90px;
@@ -130,7 +150,7 @@ font-size:13px;
 cursor:pointer;
 }
 
-/* index */
+/* MENU */
 .card{
 background:white;
 margin:10px;
@@ -203,48 +223,153 @@ font-size:13px;
 
 <div class="header">
 
-  <!-- ฝั่งซ้าย -->
-  <div class="header-left">
-    <button onclick="goHome()">🏠</button>
-  </div>
+<div class="header-left">
+<button onclick="goHome()">🏠</button>
+</div>
 
-  <!-- ชื่อร้านตรงกลาง -->
-  <div class="header-center">
-    ร้านริมทุ่ง
-  </div>
+<div class="header-center">
+ร้านริมทุ่ง
+</div>
 
-  <!-- ช้อยส์ของแม่ค้า -->
-  <div class="header-right">
+<div class="header-right">
 
-    <div style="font-size:12px; margin-bottom:4px;">
-      🔒 สำหรับร้านค้า
-    </div>
+<div style="font-size:12px;">🔒 สำหรับร้านค้า</div>
 
-    <input type="password"
-           id="sellerPass"
-           class="seller-input"
-           placeholder="ใส่รหัส">
+<input type="password" id="sellerPass" class="seller-input" placeholder="ใส่รหัส">
 
-    <button onclick="sellerLogin()">ยืนยัน</button>
+<button onclick="sellerLogin()">ยืนยัน</button>
 
-  </div>
+<!-- ✅ ตะกร้าใหม่ -->
+<div class="cart-header" onclick="openPopup()">
+🛒 <span id="cartCount">0</span>
+</div>
+
+</div>
+</div>
+<!-- ===== POPUP CART ===== -->
+<div id="cartPopup" style="
+display:none;
+position:fixed;
+top:0;left:0;
+width:100%;height:100%;
+background:rgba(0,0,0,.5);
+z-index:2000;
+">
+
+<div style="
+background:white;
+width:90%;
+max-width:420px;
+margin:80px auto;
+border-radius:14px;
+padding:15px;
+max-height:75vh;
+overflow:auto;
+">
+
+<h3 style="text-align:center;margin-top:0">🧺 รายการในตะกร้า</h3>
+
+<div id="popupCartList"></div>
+
+<div id="popupSummary"
+style="font-weight:bold;text-align:center;margin-top:10px;">
+</div>
+
+<button onclick="goOrder()" style="
+width:100%;
+padding:12px;
+background:#ff9800;
+border:none;
+border-radius:10px;
+color:white;
+font-size:16px;
+margin-top:10px;
+">
+💳 ชำระเงิน
+</button>
+
+<button onclick="closePopup()" style="width:100%;margin-top:6px;">
+❌ ปิด
+</button>
 
 </div>
 
-
 <div class="cart-box">
+
+</div>
+
+</div>
 <div class="cart-title">🧺 ตะกร้า</div>
 <div id="cartList"></div>
 <div id="cartSummary" class="cart-summary"></div>
 <button class="order-btn" onclick="goOrder()">🛒 สั่งซื้อ</button>
-</div>
 
 <div id="list"></div>
-
+<style>
+#cartList,
+#cartSummary{
+    display: none;
+}
+</style>
 <script>
+/* ===== POPUP CART ===== */
+
+function openPopup(){
+
+renderPopupCart();
+
+document.getElementById("cartPopup").style.display="block";
+}
+function renderPopupCart(){
+
+const box=document.getElementById("popupCartList");
+const sum=document.getElementById("popupSummary");
+
+box.innerHTML="";
+
+let tq=0,tp=0;
+
+Object.entries(cart).forEach(([key,i])=>{
+
+tq+=i.qty;
+tp+=i.qty*i.price;
+
+box.innerHTML+=`
+<div style="
+border-bottom:1px dashed #ccc;
+padding:8px 0;
+">
+
+<b>${i.name}</b><br>
+หวาน ${i.sweet} • ${i.type}<br>
+${i.qty} x ${i.price} บาท
+
+<div style="
+display:flex;
+justify-content:flex-end;
+gap:6px;
+margin-top:6px;
+">
+
+<button onclick="change('${key}',-1)">➖</button>
+<button onclick="change('${key}',1)">➕</button>
+
+</div>
+
+</div>`;
+});
+
+sum.innerHTML = tq
+? `รวม ${tq} แก้ว<br>รวม ${tp} บาท`
+: "ไม่มีสินค้าในตะกร้า";
+}
 
 
-/*แก้ "ชื่อ",ราคา,"images/(ชื่อรูปต้องตรง)"*/
+function closePopup(){
+document.getElementById("cartPopup").style.display="none";
+}
+
+/* ===== DATA ===== */
 const indexs=[
 ["ชาเขียว",25,"images/chageen.jpg"],
 ["ชาไทย",25,"images/chathai.jpg"],
@@ -270,21 +395,20 @@ const indexs=[
 ["มะพร้าวนมสด",25,"images/fresh-coconut-milk.jpg"],
 ["สตอเบอรี่",25,"images/strawberry.jpg"],
 ["สตอเบอรี่โซดา",25,"images/strawberry-soda.jpg"]
-/*เวลาจบตัวสุดท้ายไม่ต้องใส่ , ปิดเหมือนตัวนี้ ["นมสด",25,"images/nom.jpg"]*/
 ];
 
 const sweets=["0%","25%","50%","75%","100%","125%"];
 let cart={};
-
 const list=document.getElementById("list");
 
+/* ===== MENU ===== */
 indexs.forEach(m=>{
 const oreo=m[0]==="โอริโอ้นมสดปั่น";
 
 list.innerHTML+=`
 <div class="card">
 <div class="index" onclick="toggle(this)">
-<img src="${m[2]}" alt="${m[0]}">
+<img src="${m[2]}">
 <div><b>${m[0]}</b><br>${m[1]} บาท</div>
 </div>
 
@@ -302,40 +426,34 @@ ${sweets.map(s=>`<span class="block sweet" onclick="pick(this,'sweet')">${s}</sp
 });
 
 function toggle(index){
-
-  document.querySelectorAll(".panel").forEach(p=>{
-
-    // ปิด panel อื่น
-    if(p !== index.nextElementSibling){
-      p.style.display="none";
-      p.querySelectorAll(".block")
-        .forEach(b=>b.classList.remove("active"));
-    }
-
-  });
-
-  const panel = index.nextElementSibling;
-
-  // ⭐ ถ้ากำลังเปิดใหม่ ให้ล้างค่าที่เลือกไว้
-  if(panel.style.display !== "block"){
-    panel.querySelectorAll(".block")
-         .forEach(b=>b.classList.remove("active"));
-  }
-
-  panel.style.display =
-    panel.style.display==="block" ? "none" : "block";
+document.querySelectorAll(".panel").forEach(p=>{
+if(p!==index.nextElementSibling){
+p.style.display="none";
+p.querySelectorAll(".block").forEach(b=>b.classList.remove("active"));
+}});
+const panel=index.nextElementSibling;
+panel.style.display=panel.style.display==="block"?"none":"block";
 }
 
 function pick(el,type){
+
 if(el.classList.contains("disabled")) return;
+
+const p = el.closest(".panel");
+
+/* ⭐ ถ้ากดตัวเดิม → ยกเลิก */
 if(el.classList.contains("active")){
-el.classList.remove("active");
-return;
+    el.classList.remove("active");
+    return;
 }
-const p=el.closest(".panel");
-p.querySelectorAll("."+type).forEach(b=>b.classList.remove("active"));
+
+/* เลือกได้ทีละอัน */
+p.querySelectorAll("."+type)
+ .forEach(b=>b.classList.remove("active"));
+
 el.classList.add("active");
 }
+
 
 function addItem(btn,name,price){
 const p=btn.parentElement;
@@ -351,20 +469,41 @@ cart[key] ??= {name,sweet:sweet.textContent,type:type.textContent,price:totalPri
 cart[key].qty++;
 
 renderCart();
+}
+function addItem(btn,name,price){
+
+const p=btn.parentElement;
+const sweet=p.querySelector(".sweet.active");
+const type=p.querySelector(".type.active");
+if(!sweet||!type) return;
+
+const extra=type.dataset.extra?Number(type.dataset.extra):0;
+const totalPrice=price+extra;
+
+const key=name+"|"+sweet.textContent+"|"+type.textContent;
+cart[key] ??= {name,sweet:sweet.textContent,type:type.textContent,price:totalPrice,qty:0};
+cart[key].qty++;
+
+renderCart();
+
+/* ⭐ รีเซ็ตอยู่ตรงนี้ */
 p.style.display="none";
 p.querySelectorAll(".block").forEach(b=>b.classList.remove("active"));
 }
 
+/* ===== CART ===== */
 function change(key,val){
 cart[key].qty+=val;
 if(cart[key].qty<=0) delete cart[key];
 renderCart();
+renderPopupCart();
+
 }
 
 function renderCart(){
 const box=document.getElementById("cartList");
 const sum=document.getElementById("cartSummary");
-box.innerHTML="";
+// box.innerHTML="";
 let tq=0,tp=0;
 
 Object.values(cart).forEach(i=>{
@@ -384,53 +523,29 @@ box.innerHTML+=`
 });
 
 sum.innerHTML=tq?`รวม ${tq} แก้ว<br>รวม ${tp} บาท`:"";
+
+/* ✅ อัปเดตเลขบน Header */
+document.getElementById("cartCount").innerText=tq;
 }
 
-function checkout(){
-if(Object.keys(cart).length===0){
-alert("ยังไม่มีรายการในตะกร้า");
-return;
-}
-let msg="สรุปคำสั่งซื้อ\n\n";
-let total=0;
-Object.values(cart).forEach(i=>{
-msg+=`${i.name}\n- หวาน ${i.sweet}\n- ${i.type}\n${i.qty} x ${i.price} บาท\n\n`;
-total+=i.qty*i.price;
-});
-msg+=`รวมทั้งหมด ${total} บาท`;
-alert(msg);
-}
-
-function sellerLogin() {
-    const pass = document.getElementById("sellerPass").value;
-
-    if(pass === "1234"){
-
-        // บอกระบบว่าเป็นแม่ค้า
-        localStorage.setItem("role","seller");
-
-        // เด้งไปหน้าแม่ค้า
-        window.location.href = "seller.html";
-
-    }else{
-        alert("รหัสไม่ถูกต้อง");
-    }
+/* ===== SYSTEM ===== */
+function sellerLogin(){
+const pass=document.getElementById("sellerPass").value;
+if(pass==="1234"){
+localStorage.setItem("role","seller");
+window.location.href="seller.html";
+}else alert("รหัสไม่ถูกต้อง");
 }
 
 function goHome(){
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
+window.scrollTo({top:0,behavior:"smooth"});
 }
 
 function goOrder(){
-    localStorage.setItem("cart", JSON.stringify(cart));
-    window.location.href = "order.html";
+localStorage.setItem("cart",JSON.stringify(cart));
+window.location.href="order.html";
 }
 
-
 </script>
-
 </body>
 </html>

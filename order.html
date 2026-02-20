@@ -88,24 +88,20 @@ button:hover{
 
 <script>
 
-/* ✅ ดึงข้อมูลจาก index.html ก่อน */
 let cartData = JSON.parse(localStorage.getItem("cart")) || {};
 let order = Object.values(cartData);
 
 let html = "";
 let total = 0;
 
-/* ถ้าไม่มีรายการ */
 if(order.length === 0){
-
     html = "<p style='text-align:center;color:red'>ไม่มีรายการสั่งซื้อ</p>";
-
 }else{
 
     order.forEach(item => {
 
-        let price = item.price || 0;
-        let qty = item.qty || 0;
+        let price = Number(item.price) || 0;
+        let qty = Number(item.qty) || 0;
         let sum = price * qty;
 
         total += sum;
@@ -122,31 +118,52 @@ if(order.length === 0){
     });
 }
 
-/* แสดงผล */
 document.getElementById("orderList").innerHTML = html;
 document.getElementById("totalPrice").innerHTML =
-    "รวมทั้งหมด : " + total + " บาท";
+"รวมทั้งหมด : " + total + " บาท";
 
-/* กดสแกนแล้ว */
+
+/* ✅ ส่งออเดอร์ไปหน้าร้าน (เพิ่มเก็บราคา) */
 function paid(){
-    localStorage.setItem("status","paid");
-    window.location.href="waiting.html";
-}
 
-function paid() {
+    let orders = JSON.parse(localStorage.getItem("orders")) || [];
 
-    // ล้างตะกร้า
+    // เพิ่ม sum เข้า item ทุกตัว
+    let itemsWithPrice = order.map(item => {
+
+    let price = Number(item.price) || 0;
+    let qty   = Number(item.qty) || 0;
+
+    return {
+        name: item.name || "-",
+        type: item.type || "-",
+        sweet: item.sweet || "-",
+        qty: qty,
+        price: price,
+        sum: price * qty
+    };
+});
+
+
+    let newOrder = {
+        time: new Date().toLocaleString("th-TH"),
+        total: total,
+        items: itemsWithPrice
+    };
+
+    orders.push(newOrder);
+
+    localStorage.setItem("orders", JSON.stringify(orders));
+
     localStorage.removeItem("cart");
 
-    // แจ้งเตือน
-    alert("ชำระเงินเรียบร้อย ✅");
+    alert("ส่งออเดอร์ไปที่ร้านแล้ว ✅");
 
-    // กลับหน้าเมนู
-    window.location.href = "index.html";
+    window.location.href="index.html";
 }
 
-
 </script>
+
 
 
 </body>

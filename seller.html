@@ -25,9 +25,18 @@ body{
     padding:20px;
     border-radius:12px;
 }
+
 .order{
-    border-bottom:1px solid #ddd;
-    padding:10px;
+    border-bottom:2px solid #ddd;
+    padding:12px;
+    margin-bottom:10px;
+}
+
+.item{
+    background:#f9f9f9;
+    padding:8px;
+    margin-top:6px;
+    border-radius:8px;
 }
 </style>
 </head>
@@ -36,20 +45,19 @@ body{
 
 <div class="header" style="display:flex; justify-content:space-between; align-items:center;">
 
-    <button onclick="goindex()" style="
-        background:white;
-        border:none;
-        padding:6px 12px;
-        border-radius:6px;
-        cursor:pointer;
-        font-weight:bold;">
-        🏠 หน้าแรก
-    </button>
+<button onclick="goindex()" style="
+background:white;
+border:none;
+padding:6px 12px;
+border-radius:6px;
+cursor:pointer;
+font-weight:bold;">
+🏠 หน้าแรก
+</button>
 
-    <div>👨‍🍳 หน้าควบคุมร้านค้า</div>
+<div>👨‍🍳 หน้าควบคุมร้านค้า</div>
 
 </div>
-
 
 <div class="container">
 <div id="orderList">ยังไม่มีออเดอร์</div>
@@ -57,33 +65,55 @@ body{
 
 <script>
 
-let orders = JSON.parse(localStorage.getItem("orders")) || [];
+function loadOrders(){
 
-let html="";
+    let orders = JSON.parse(localStorage.getItem("orders")) || [];
 
-orders.forEach(order=>{
-    html += `<div class="order">
-        เวลา: ${order.time}<br>
-    `;
+    let html="";
 
-    order.items.forEach(item=>{
+    orders.forEach(order=>{
+
+        html += `<div class="order">
+        🕒 เวลา: ${order.time}<br>`;
+
+        order.items.forEach(item=>{
+
+            html += `
+            <div class="item">
+                <b>${item.name}</b><br>
+                🧋 ประเภท: ${item.type || "-"}<br>
+                🍬 ความหวาน: ${item.sweet || "-"}<br>
+                💰 ราคา: ${item.price || 0} บาท<br>
+                🔢 จำนวน: ${item.qty || 0}<br>
+                ✅ รวม: ${item.sum || 0} บาท
+
+            </div>
+            `;
+        });
+
         html += `
-        ${item.name} x ${item.qty}<br>
-        `;
+        <div style="text-align:right;font-weight:bold;margin-top:8px;">
+            💵 ยอดออเดอร์: ${order.total} บาท
+        </div>
+        </div>`;
     });
 
-    html += "</div>";
-});
-
-if(html !== ""){
-    document.getElementById("orderList").innerHTML = html;
+    if(html !== ""){
+        document.getElementById("orderList").innerHTML = html;
+    }
 }
 
+loadOrders();
+
+/* รีเฟรชอัตโนมัติ */
+setInterval(loadOrders,3000);
+
 function goindex(){
-    window.location.href = "index.html";
+    window.location.href="index.html";
 }
 
 </script>
+
 
 </body>
 </html>
