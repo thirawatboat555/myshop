@@ -56,23 +56,23 @@ justify-content:center;
 .header button{
 border:none;
 border-radius:6px;
-padding:4px 8px;
+padding:2px 2px;
 cursor:pointer;
 }
 
 .seller-input{
-padding:3px 6px;
-border-radius:6px;
+padding:3px 5px;
+border-radius:3px;
 border:none;
 font-size:12px;
-width:90px;
+width:50px;
 }
 
 /* ✅ ปุ่มตะกร้าใน Header */
 .cart-header{
 background:white;
 color:#2e7d32;
-padding:4px 12px;
+padding:4px 6px;
 border-radius:20px;
 font-weight:bold;
 cursor:pointer;
@@ -224,24 +224,17 @@ font-size:13px;
 <div class="header">
 
 <div class="header-left">
-<button onclick="goHome()">🏠</button>
+<!-- <button onclick="goHome()">🏠</button> -->
 <div class="header-right">
-
 <div style="font-size:12px;">🔒 สำหรับร้านค้า</div>
-
 <input type="password" id="sellerPass" class="seller-input" placeholder="ใส่รหัส">
-
 <button onclick="sellerLogin()">ยืนยัน</button>
-
-
-
 </div>
 </div>
 
 <div class="header-center">
 ร้านริมทุ่ง
 </div>
-
 
 <!-- ✅ ตะกร้าใหม่ -->
 <div class="cart-header" onclick="openPopup()">
